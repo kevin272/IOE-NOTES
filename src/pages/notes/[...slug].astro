@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const notes = await getCollection('notes');
+	return notes.map(note => ({
+		params: { slug: note.slug },
+		props: { note },
+	}));
+}
+
+const { note } = Astro.props;
+const { Content } = await note.render();
+---
+
+<Layout title={note.data.title}>
+	<div class="note-header">
+		<a href="/" class="back-link">← Back to all notes</a>
+		<h1>{note.data.title}</h1>
+		<div class="meta">
+			<span>Semester {note.data.semester}</span>
+			<span class="date">{note.data.date.toLocaleDateString()}</span>
+		</div>
+		{note.data.description && <p class="description">{note.data.description}</p>}
+	</div>
+	<article class="content">
+		<Content />
+	</article>
+</Layout>
+
+<style>
+	.note-header {
+		margin-bottom: 2rem;
+	}
+	.back-link {
+		display: inline-block;
+		margin-bottom: 1rem;
+		color: var(--accent);
+		text-decoration: none;
+	}
+	.back-link:hover {
+		color: var(--text-color);
+	}
+	h1 {
+		margin: 0 0 0.5rem 0;
+		font-size: 2rem;
+		color: var(--text-color);
+	}
+	.meta {
+		color: #666;
+		font-size: 0.9rem;
+	}
+	.meta span:not(:last-child)::after {
+		content: "•";
+		margin: 0 0.5rem;
+	}
+	.description {
+		margin-top: 1rem;
+		color: #666;
+	}
+	.content {
+		background: white;
+		padding: 2rem;
+		border-radius: 8px;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+	article :global(h2) {
+		margin-top: 2rem;
+		margin-bottom: 1rem;
+		font-size: 1.5rem;
+	}
+	article :global(p) {
+		line-height: 1.6;
+	}
+	article :global(pre) {
+		background: #f1f3f5;
+		padding: 1rem;
+		border-radius: 4px;
+		overflow-x: auto;
+	}
+</style>

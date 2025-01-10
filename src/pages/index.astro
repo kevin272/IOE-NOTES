@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const semesters = Array.from({ length: 8 }, (_, i) => i + 1);
+const allNotes = await getCollection('notes');
+
+const notesBySemester = semesters.map(semester => ({
+	semester,
+	notes: allNotes.filter(note => note.data.semester === semester)
+}));
+---
+
+<Layout title="Academic Notes">
+	<h1>Academic Notes</h1>
+	<div class="semesters">
+		{notesBySemester.map(({ semester, notes }) => (
+			<div class="semester-card">
+				<h2>Semester {semester}</h2>
+				{notes.length > 0 ? (
+					<ul>
+						{notes.map(note => (
+							<li>
+								<a href={`/notes/${note.slug}`}>{note.data.title}</a>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="empty">No notes available yet</p>
+				)}
+			</div>
+		))}
+	</div>
+</Layout>
+
+<style>
+	h1 {
+		font-size: 2.5rem;
+		margin-bottom: 2rem;
+		color: var(--text-color);
+	}
+	.semesters {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 2rem;
+	}
+	.semester-card {
+		background: white;
+		padding: 1.5rem;
+		border-radius: 8px;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+	.semester-card h2 {
+		margin: 0 0 1rem 0;
+		color: var(--text-color);
+		font-size: 1.25rem;
+	}
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	li {
+		margin-bottom: 0.5rem;
+	}
+	a {
+		color: var(--accent);
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+	a:hover {
+		color: var(--text-color);
+	}
+	.empty {
+		color: #666;
+		font-style: italic;
+		margin: 0;
+	}
+</style>
